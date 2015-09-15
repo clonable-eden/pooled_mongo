@@ -1,0 +1,12 @@
+{application, pooled_mongo,
+ [
+  {description, "connection pool for mongodb driver, using poolboy"},
+  {vsn, "0.0.1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { pooled_mongo_app, []}},
+  {env, []}
+]}.
