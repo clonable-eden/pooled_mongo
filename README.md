@@ -2,6 +2,8 @@
 
 Connection pool for [mongodb](https://github.com/comtihon/mongodb-erlang) via [poolboy](https://github.com/devinus/poolboy).
 
+**Please use Erlang/OTP 19 or later.**
+
 ## Configuration
 
 Add below to your app.config.
