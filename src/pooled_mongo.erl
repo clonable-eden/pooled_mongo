@@ -80,8 +80,8 @@ stop() ->
 -spec pool() -> poolid().
 pool() ->
   {ok, Pools} = application:get_env(pooled_mongo, pools),
-  random:seed(erlang:timestamp()),
-  Slot = random:uniform(length(Pools)),
+  rand:seed(erlang:timestamp()),
+  Slot = rand:uniform(length(Pools)),
   {Name, _, _} = lists:nth(Slot, Pools),
   Name.
 
