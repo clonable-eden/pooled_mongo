@@ -1,7 +1,7 @@
 {application, pooled_mongo,
  [
   {description, "connection pool for mongodb driver, using poolboy"},
-  {vsn, "0.0.2"},
+  {vsn, "0.2.0"},
   {registered, []},
   {applications, [
                   kernel,
