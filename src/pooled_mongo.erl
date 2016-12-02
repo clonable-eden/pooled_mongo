@@ -80,14 +80,15 @@ stop() ->
 -spec pool() -> poolid().
 pool() ->
   {ok, Pools} = application:get_env(pooled_mongo, pools),
-  Slot = case list_to_integer(erlang:system_info(otp_release)) of
-    V when V > 18 ->
+  % thanks: https://github.com/lasp-lang/rand_compat
+  Slot = case (code:which(rand) /= non_existing) of
+    true ->
       rand:seed(exs1024),
       rand:uniform(length(Pools));
-    _ ->
-      random:seed(erlang:timestamp()),
-      random:uniform(length(Pools))
-  end,
+    false ->
+      (fun random:seed/1)(erlang:timestamp()),
+      (fun random:uniform/1)(length(Pools))
+    end,
   {Name, _, _} = lists:nth(Slot, Pools),
   Name.
 
