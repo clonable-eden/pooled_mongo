@@ -19,9 +19,9 @@
 ]).
 -export([
   update/4,
-  update/5,
+  update/6,
   update2/3,
-  update2/4
+  update2/5
 ]).
 -export([
   delete/3,
@@ -103,7 +103,7 @@ pools() ->
 -spec insert(poolid(), collection(), A) -> {ok, A} | {error, Reason::term()}.
 insert(PoolId, Collection, Doc) ->
   exec(PoolId,
-    fun(Worker) -> mongo:insert(Worker, Collection, Doc) end,
+    fun(Worker) -> mc_worker_api:insert(Worker, Collection, Doc) end,
     fun() -> insert(PoolId, Collection, Doc) end
   ).
 
@@ -114,78 +114,78 @@ insert2(Collection, Doc) ->
   insert(pool(), Collection, Doc).
 
 %% @doc Replace the document matching criteria entirely with the new Document.
--spec update(poolid(), collection(), selector(), bson:document()) -> {ok, ok} | {error, Reason::term()}.
+-spec update(poolid(), collection(), selector(), bson:document()) -> {ok, map()} | {error, Reason::term()}.
 update(PoolId, Collection, Selector, Doc) ->
-  update(PoolId, Collection, Selector, Doc, []).
+  update(PoolId, Collection, Selector, Doc, false, false).
 
 %% @doc Replace the document matching criteria entirely with the new Document.
--spec update(poolid(), collection(), selector(), bson:document(), proplists:proplist()) -> {ok, ok} | {error, Reason::term()}.
-update(PoolId, Collection, Selector, Doc, Args) ->
+-spec update(poolid(), collection(), selector(), bson:document(), boolean(), boolean()) -> {ok, map()} | {error, Reason::term()}.
+update(PoolId, Collection, Selector, Doc, Upsert, MultiUpdate) ->
   exec(PoolId,
-    fun(Worker) -> mongo:update(Worker, Collection, Selector, Doc, Args) end,
-    fun() -> update(PoolId, Collection, Selector, Doc, Args) end
+    fun(Worker) -> mc_worker_api:update(Worker, Collection, Selector, Doc, Upsert, MultiUpdate) end,
+    fun() -> update(PoolId, Collection, Selector, Doc, Upsert, MultiUpdate) end
   ).
 
 %% @doc Replace the document matching criteria entirely with the new Document.
--spec update2(collection(), selector(), bson:document()) -> {ok, ok} | {error, Reason::term()}.
+-spec update2(collection(), selector(), bson:document()) -> {ok, map()} | {error, Reason::term()}.
 update2(Collection, Selector, Doc) ->
-  update(pool(), Collection, Selector, Doc, []).
+  update(pool(), Collection, Selector, Doc, false, false).
 
 %% @doc Replace the document matching criteria entirely with the new Document.
--spec update2(collection(), selector(), bson:document(), proplists:proplist()) -> {ok, ok} | {error, Reason::term()}.
-update2(Collection, Selector, Doc, Args) ->
-  update(pool(), Collection, Selector, Doc, Args).
+-spec update2(collection(), selector(), bson:document(), boolean(), boolean()) -> {ok, map()} | {error, Reason::term()}.
+update2(Collection, Selector, Doc, Upsert, Multiple) ->
+  update(pool(), Collection, Selector, Doc, Upsert, Multiple).
 
 %% @doc Delete selected documents
--spec delete(poolid(), collection(), selector()) -> {ok, ok} | {error, Reason::term()}.
+-spec delete(poolid(), collection(), selector()) -> {ok, map()} | {error, Reason::term()}.
 delete(PoolId, Collection, Selector) ->
   exec(PoolId,
-    fun(Worker) -> mongo:delete(Worker, Collection, Selector) end,
+    fun(Worker) -> mc_worker_api:delete(Worker, Collection, Selector) end,
     fun() -> delete(PoolId, Collection, Selector) end
   ).
 
 %% @doc Delete selected documents
--spec delete2(collection(), selector()) -> {ok, ok} | {error, Reason::term()}.
+-spec delete2(collection(), selector()) -> {ok, map()} | {error, Reason::term()}.
 delete2(Collection, Selector) ->
   delete(pool(), Collection, Selector).
 
 %% @doc Delete first selected document.
--spec delete_one(poolid(), collection(), selector()) -> {ok, ok} | {error, Reason::term()}.
+-spec delete_one(poolid(), collection(), selector()) -> {ok, map()} | {error, Reason::term()}.
 delete_one(PoolId, Collection, Selector) ->
   exec(PoolId,
-    fun(Worker) -> mongo:delete_one(Worker, Collection, Selector) end,
+    fun(Worker) -> mc_worker_api:delete_one(Worker, Collection, Selector) end,
     fun() -> delete_one(PoolId, Collection, Selector) end
   ).
 
 %% @doc Delete first selected document.
--spec delete_one2(collection(), selector()) -> {ok, ok} | {error, Reason::term()}.
+-spec delete_one2(collection(), selector()) -> {ok, map()} | {error, Reason::term()}.
 delete_one2(Collection, Selector) ->
   delete_one(pool(), Collection, Selector).
 
 %% @doc Return first selected document, if any
 -spec find_one(PoolId :: poolid(), Collection :: collection(), Selector :: selector()) ->
-  {ok, {}} | {ok, {bson:document()}} | {error, Reason::term()}.
+  {ok, {}} | {ok, map()} | {error, Reason::term()}.
 find_one(PoolId, Collection, Selector) ->
-  find_one(PoolId, Collection, Selector, []).
+  find_one(PoolId, Collection, Selector, #{}).
 
 %% @doc Return first selected document, if any
--spec find_one(PoolId :: poolid(), Collection :: collection(), Selector :: selector(), Args :: proplists:proplist()) ->
-  {ok, {}} | {ok, {bson:document()}} | {error, Reason::term()}.
+-spec find_one(PoolId :: poolid(), Collection :: collection(), Selector :: selector(), Args :: map()) ->
+  {ok, {}} | {ok, map()} | {error, Reason::term()}.
 find_one(PoolId, Collection, Selector, Args) ->
   exec(PoolId,
-    fun(Worker) -> mongo:find_one(Worker, Collection, Selector, Args) end,
+    fun(Worker) -> mc_worker_api:find_one(Worker, Collection, Selector, Args) end,
     fun() -> find_one(PoolId, Collection, Selector, Args) end
   ).
 
 %% @doc Return first selected document, if any
 -spec find_one2(Collection :: collection(), Selector :: selector()) ->
-  {ok, {}} | {ok, {bson:document()}} | {error, Reason::term()}.
+  {ok, {}} | {ok, map()} | {error, Reason::term()}.
 find_one2(Collection, Selector) ->
-  find_one(pool(), Collection, Selector, []).
+  find_one(pool(), Collection, Selector, #{}).
 
 %% @doc Return first selected document, if any
--spec find_one2(Collection :: collection(), Selector :: selector(), Args :: proplists:proplist()) ->
-  {ok, {}} | {ok, {bson:document()}} | {error, Reason::term()}.
+-spec find_one2(Collection :: collection(), Selector :: selector(), Args :: map()) ->
+  {ok, {}} | {ok, map()} | {error, Reason::term()}.
 find_one2(Collection, Selector, Args) ->
   find_one(pool(), Collection, Selector, Args).
 
@@ -193,14 +193,14 @@ find_one2(Collection, Selector, Args) ->
 -spec find(PoolId :: poolid(), Collection :: collection(), Selector :: selector()) ->
   {ok, cursor()} | {error, Reason::term()}.
 find(PoolId, Collection, Selector) ->
-  find(PoolId, Collection, Selector, []).
+  find(PoolId, Collection, Selector, #{}).
 
 %% @doc Return selected documents.
--spec find(PoolId :: poolid(), Collection :: collection(), Selector :: selector(), Args :: proplists:proplist()) ->
+-spec find(PoolId :: poolid(), Collection :: collection(), Selector :: selector(), Args :: map()) ->
   {ok, cursor()} | {error, Reason::term()}.
 find(PoolId, Collection, Selector, Args) ->
   exec(PoolId,
-    fun(Worker) -> mongo:find(Worker, Collection, Selector, Args) end,
+    fun(Worker) -> mc_worker_api:find(Worker, Collection, Selector, Args) end,
     fun() -> find(PoolId, Collection, Selector, Args) end
   ).
 
@@ -208,10 +208,10 @@ find(PoolId, Collection, Selector, Args) ->
 -spec find2(Collection :: collection(), Selector :: selector()) ->
   {ok, cursor()} | {error, Reason::term()}.
 find2(Collection, Selector) ->
-  find(pool(), Collection, Selector, []).
+  find(pool(), Collection, Selector, #{}).
 
 %% @doc Return selected documents.
--spec find2(Collection :: collection(), Selector :: selector(), Args :: proplists:proplist()) ->
+-spec find2(Collection :: collection(), Selector :: selector(), Args :: map()) ->
   {ok, cursor()} | {error, Reason::term()}.
 find2(Collection, Selector, Args) ->
   find(pool(), Collection, Selector, Args).
@@ -219,20 +219,20 @@ find2(Collection, Selector, Args) ->
 %@doc Count selected documents
 -spec count(poolid(), collection(), selector()) -> {ok, integer()} | {error, Reason::term()}.
 count(PoolId, Collection, Selector) ->
-  count(PoolId, Collection, Selector, 0).
+  count(PoolId, Collection, Selector, #{limit => 0}).
 
 %@doc Count selected documents
--spec count(poolid(), collection(), selector(), integer()) -> {ok, integer()} | {error, Reason::term()}.
+-spec count(poolid(), collection(), selector(), map()) -> {ok, integer()} | {error, Reason::term()}.
 count(PoolId, Collection, Selector, Limit) ->
   exec(PoolId,
-    fun(Worker) -> mongo:count(Worker, Collection, Selector, Limit) end,
+    fun(Worker) -> mc_worker_api:count(Worker, Collection, Selector, Limit) end,
     fun() -> count(PoolId, Collection, Selector, Limit) end
   ).
 
 %@doc Count selected documents
 -spec count2(collection(), selector()) -> {ok, integer()} | {error, Reason::term()}.
 count2(Collection, Selector) ->
-  count(pool(), Collection, Selector, 0).
+  count(pool(), Collection, Selector, #{limit => 0}).
 
 %@doc Count selected documents
 -spec count2(collection(), selector(), integer()) -> {ok, integer()} | {error, Reason::term()}.
@@ -248,7 +248,7 @@ count2(Collection, Selector, Limit) ->
 -spec ensure_index(poolid(), collection(), bson:document()) -> {ok, ok} | {error, Reason::term()}.
 ensure_index(PoolId, Coll, IndexSpec) ->
   exec(PoolId,
-    fun(Worker) -> mongo:ensure_index(Worker, Coll, IndexSpec) end,
+    fun(Worker) -> mc_worker_api:ensure_index(Worker, Coll, IndexSpec) end,
     fun() -> ensure_index(PoolId, Coll, IndexSpec) end
   ).
 
@@ -266,7 +266,7 @@ ensure_index2(Coll, IndexSpec) ->
 -spec command(poolid(), bson:document()) -> {ok, {boolean(), bson:document()}} | {error, Reason::term()}. % Action
 command(PoolId, Command) ->
   exec(PoolId,
-    fun(Worker) -> mongo:command(Worker, Command) end,
+    fun(Worker) -> mc_worker_api:command(Worker, Command) end,
     fun() -> command(PoolId, Command) end
   ).
 
@@ -293,6 +293,10 @@ execute2(Function) ->
   {ok, _} | {error, Reason::term()}.
 exec(PoolId, Function, Fallback) ->
   try poolboy:transaction(PoolId, Function) of
+    {{true, _}, Result} ->
+      {ok, Result};
+    {true, Result} ->
+      {ok, Result};
     Result ->
       {ok, Result}
   catch
