@@ -103,7 +103,7 @@ pools() ->
 -spec insert(poolid(), collection(), A) -> {ok, A} | {error, Reason::term()}.
 insert(PoolId, Collection, Doc) ->
   exec(PoolId,
-    fun(Worker) -> mc_worker_api:insert(Worker, Collection, Doc) end,
+    fun(Worker) -> (fun mc_worker_api:insert/3)(Worker, Collection, Doc) end,
     fun() -> insert(PoolId, Collection, Doc) end
   ).
 
@@ -122,7 +122,7 @@ update(PoolId, Collection, Selector, Doc) ->
 -spec update(poolid(), collection(), selector(), bson:document(), boolean(), boolean()) -> {ok, map()} | {error, Reason::term()}.
 update(PoolId, Collection, Selector, Doc, Upsert, MultiUpdate) ->
   exec(PoolId,
-    fun(Worker) -> mc_worker_api:update(Worker, Collection, Selector, Doc, Upsert, MultiUpdate) end,
+    fun(Worker) -> (fun mc_worker_api:update/6)(Worker, Collection, Selector, Doc, Upsert, MultiUpdate) end,
     fun() -> update(PoolId, Collection, Selector, Doc, Upsert, MultiUpdate) end
   ).
 
@@ -140,7 +140,7 @@ update2(Collection, Selector, Doc, Upsert, Multiple) ->
 -spec delete(poolid(), collection(), selector()) -> {ok, map()} | {error, Reason::term()}.
 delete(PoolId, Collection, Selector) ->
   exec(PoolId,
-    fun(Worker) -> mc_worker_api:delete(Worker, Collection, Selector) end,
+    fun(Worker) -> (fun mc_worker_api:delete/3)(Worker, Collection, Selector) end,
     fun() -> delete(PoolId, Collection, Selector) end
   ).
 
@@ -153,7 +153,7 @@ delete2(Collection, Selector) ->
 -spec delete_one(poolid(), collection(), selector()) -> {ok, map()} | {error, Reason::term()}.
 delete_one(PoolId, Collection, Selector) ->
   exec(PoolId,
-    fun(Worker) -> mc_worker_api:delete_one(Worker, Collection, Selector) end,
+    fun(Worker) -> (fun mc_worker_api:delete_one/3)(Worker, Collection, Selector) end,
     fun() -> delete_one(PoolId, Collection, Selector) end
   ).
 
@@ -225,7 +225,7 @@ count(PoolId, Collection, Selector) ->
 -spec count(poolid(), collection(), selector(), map()) -> {ok, integer()} | {error, Reason::term()}.
 count(PoolId, Collection, Selector, Limit) ->
   exec(PoolId,
-    fun(Worker) -> mc_worker_api:count(Worker, Collection, Selector, Limit) end,
+    fun(Worker) -> (fun mc_worker_api:count/4)(Worker, Collection, Selector, Limit) end,
     fun() -> count(PoolId, Collection, Selector, Limit) end
   ).
 
@@ -235,7 +235,7 @@ count2(Collection, Selector) ->
   count(pool(), Collection, Selector, #{limit => 0}).
 
 %@doc Count selected documents
--spec count2(collection(), selector(), integer()) -> {ok, integer()} | {error, Reason::term()}.
+-spec count2(collection(), selector(), map()) -> {ok, integer()} | {error, Reason::term()}.
 count2(Collection, Selector, Limit) ->
   count(pool(), Collection, Selector, Limit).
 
@@ -263,7 +263,7 @@ ensure_index2(Coll, IndexSpec) ->
   ensure_index(pool(), Coll, IndexSpec).
 
 %% @doc Execute given MongoDB command and return its result.
--spec command(poolid(), bson:document()) -> {ok, {boolean(), bson:document()}} | {error, Reason::term()}. % Action
+-spec command(poolid(), bson:document()) -> {ok, bson:document()} | {error, Reason::term()}. % Action
 command(PoolId, Command) ->
   exec(PoolId,
     fun(Worker) -> mc_worker_api:command(Worker, Command) end,
@@ -271,7 +271,7 @@ command(PoolId, Command) ->
   ).
 
 %% @doc Execute given MongoDB command and return its result.
--spec command2(bson:document()) -> {ok, {boolean(), bson:document()}} | {error, Reason::term()}. % Action
+-spec command2(bson:document()) -> {ok, bson:document()} | {error, Reason::term()}. % Action
 command2(Command) ->
   command(pool(), Command).
 
