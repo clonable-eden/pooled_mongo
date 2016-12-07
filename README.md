@@ -35,12 +35,12 @@ Add below to your app.config.
 ## Usage
 
 If you use any pool, available functions are:  
-`insert/3`, `update/4`, `update/5`, `delete/3`, `delete_one/3`, `find_one/3`, `find_one/4`, `find/3`, `find/4`, `count/3`, `count/4`, `ensure_index/3`, `command/2`, `execute/2`
+`insert/3`, `update/4`, `update/6`, `delete/3`, `delete_one/3`, `find_one/3`, `find_one/4`, `find/3`, `find/4`, `count/3`, `count/4`, `ensure_index/3`, `command/2`, `execute/2`
 
 If you retrieve one of the pools, use `pool/0` or choose from the result of `pools/0`.
 
 If you use random pool, available functions are:
-`insert2/2`, `update2/3`, `update2/4`, `delete2/2`, `delete_one2/2`, `find_one2/2`, `find_one2/3`, `find2/2`, `find2/3`, `count2/2`, `count2/3`, `ensure_index2/2`, `command2/1`, `execute2/1`
+`insert2/2`, `update2/3`, `update2/5`, `delete2/2`, `delete_one2/2`, `find_one2/2`, `find_one2/3`, `find2/2`, `find2/3`, `count2/2`, `count2/3`, `ensure_index2/2`, `command2/1`, `execute2/1`
 
 ## Example
 
@@ -49,9 +49,9 @@ If you use random pool, available functions are:
 > PoolId = pooled_mongo:pool().
 > {ok, Result} = pooled_mongo:find_one(PoolId, <<"test">>, {<<"key">>, <<"value">>}).
   (Result may be Map)
-> {ok, Result} = pooled_mongo:find_one(<<"test">>, {<<"key">>, <<"value">>}).
+> {ok, Result} = pooled_mongo:find_one2(<<"test">>, {<<"key">>, <<"value">>}).
   (Result may be Map)
-```  
+```
 
 ## TODO
 
