@@ -293,6 +293,8 @@ execute2(Function) ->
   {ok, _} | {error, Reason::term()}.
 exec(PoolId, Function, Fallback) ->
   try poolboy:transaction(PoolId, Function) of
+    {{true, #{<<"writeErrors">> :=WerrMap}}, _}->
+      handle_error({error,WerrMap}, Fallback); 
     {{true, _}, Result} ->
       {ok, Result};
     {true, Result} ->
